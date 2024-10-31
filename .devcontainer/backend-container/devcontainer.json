@@ -1,0 +1,21 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/universal
+{
+	"name": "Backend Container",
+	"dockerComposeFile": ["../../docker-compose.yml"],
+	"service": "backend",
+	"shutdownAction": "none",
+	"workspaceFolder": "/workspace/backend",
+	"postCreateCommand": "bash scripts/install-dependencies.sh",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-vscode-remote.vscode-remote-extensionpack",
+				"be5invis.toml",
+				"charliermarsh.ruff",
+				"batisteo.vscode-django"
+			]
+		}
+	}
+}

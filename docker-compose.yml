@@ -1,0 +1,21 @@
+version: '3'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./.devcontainer/backend-container/Dockerfile
+    volumes:
+      # Mount the root folder that contains .git
+      - .:/workspace:cached
+    command: sleep infinity
+    links:
+      - frontend
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./.devcontainer/frontend-container/Dockerfile
+    volumes:
+      # Mount the root folder that contains .git
+      - .:/workspace:cached
+    command: sleep infinity
