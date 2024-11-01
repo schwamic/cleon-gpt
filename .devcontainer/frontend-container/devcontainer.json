@@ -6,5 +6,12 @@
 	"service": "frontend",
 	"shutdownAction": "none",
 	"workspaceFolder": "/workspace/frontend",
-	"postCreateCommand": "bash scripts/install-dependencies.sh"
+	"postCreateCommand": "bash scripts/install-dependencies.sh",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"dbaeumer.vscode-eslint"
+			]
+		}
+	}
 }
