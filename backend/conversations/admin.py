@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from conversations.models import AIModel, AIFunction
+
+admin.site.register(AIModel)
+admin.site.register(AIFunction)
