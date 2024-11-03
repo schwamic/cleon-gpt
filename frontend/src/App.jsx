@@ -1,6 +1,4 @@
-import './App.css'
 import { QueryClient, QueryClientProvider } from 'react-query'
-
 import ChatPage from '/src/pages/ChatPage'
 
 const queryClient = new QueryClient()

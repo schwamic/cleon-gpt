@@ -1,73 +1,51 @@
-import { useState, useCallback, useEffect } from 'react';
 import { ReadyState } from 'react-use-websocket';
+import { useRef, useEffect } from 'react'
 
-import { useConversationSocket, useGetUser } from '/src/modules/common/clients/useCleonApi';
+import { useGetUser } from '/src/modules/common/clients/useCleonApi';
+import { Frame } from '/src/modules/common/ui-components';
+import { ChatHeader, ChatMessageInput, ChatConversations } from '/src/modules/chat/components';
+import { useChat } from '/src/modules/chat/hooks';
+import content from '/src/assets/content.json';
 
 
-const CHAT_ID = "579d6fb7-fa62-42bd-80bb-7f4870cbd810"
 const USER_ID = "088948cc-e508-4ead-afde-7b9dd013a940"
+const CHAT_ID = "579d6fb7-fa62-42bd-80bb-7f4870cbd810"
 
 function ChatPage() {
     const { data: user } = useGetUser(USER_ID)
-    const [messageHistory, setMessageHistory] = useState([]);
-    const [chatHistory, setChatHistory] = useState([]);
-    const { sendMessage, lastMessage, readyState } = useConversationSocket(CHAT_ID);
+    const [chatHistory, messageHistory, handleClickSendMessage, readyState, isDirty] = useChat(CHAT_ID)
+    const scrollContainerRef = useRef(null);
 
     useEffect(() => {
-        if (lastMessage !== null) {
-            const event = JSON.parse(lastMessage.data)
-            if (event?.type == "status") {
-                console.log("status", event)
-                const message = messageHistory.join("")
-                setChatHistory((prev) => prev.concat({ type: "ai_message", content: message }));
-                setMessageHistory([]);
-            } else {
-                const message = event?.data?.message
-                setMessageHistory((prev) => prev.concat(message));
-            }
+        if (!scrollContainerRef.current) {
+            return;
         }
-    }, [lastMessage]);
-
-    const handleClickSendMessage = useCallback(() => {
-        //const prompt = "How is the weather in 86159 Augsburg?"
-        // const prompt = "Count from 1 to 3."
-        const prompt = "Tell a joke in 3 words."
-        setChatHistory((prev) => prev.concat({ type: "human_message", content: prompt }));
-        const message = {
-            type: "human_message",
-            data: {
-                message: prompt
-            }
-        }
-        sendMessage(JSON.stringify(message))
-
-    }, [sendMessage]);
-
-    const connectionStatus = {
-        [ReadyState.CONNECTING]: 'Connecting',
-        [ReadyState.OPEN]: 'Open',
-        [ReadyState.CLOSING]: 'Closing',
-        [ReadyState.CLOSED]: 'Closed',
-        [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-    }[readyState];
+        scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+    }, [messageHistory, chatHistory]);
 
     return (
-        <>
-            <h1>Cleon GPT</h1>
+        <Frame className="flex flex-col">
             <div>
-                <button
-                    onClick={handleClickSendMessage}
-                    disabled={readyState !== ReadyState.OPEN}
-                >
-                    SEND MESSAGE
-                </button>
+                <ChatHeader
+                    nickname={user?.nickname}
+                    isOnline={readyState === ReadyState.OPEN} />
             </div>
-            <div>The WebSocket is currently {connectionStatus}</div>
-            {lastMessage ? <div>Last message: {lastMessage.data}</div> : null}
-            {user ? <div>Active User: {user.nickname} – {user.id}</div> : null}
-            {chatHistory?.map((message, idx) => <div key={idx}>{message?.type + ": " + message?.content}</div>)}
-            <div>{messageHistory.join("")}</div>
-        </>
+            <div className="grow overflow-y-scroll h-0" ref={scrollContainerRef}>
+                {isDirty ?
+                    <ChatConversations
+                        chatHistory={chatHistory}
+                        messageHistory={messageHistory.join("")} />
+                    : <div className="grid place-content-center h-full">
+                        <h1 className="italic font-black text-lg">{content.welcome_message}</h1>
+                    </div>
+                }
+            </div>
+            <div className="mt-3">
+                <ChatMessageInput
+                    disabled={readyState !== ReadyState.OPEN}
+                    onClick={handleClickSendMessage} />
+            </div>
+        </Frame>
     );
 }
 
