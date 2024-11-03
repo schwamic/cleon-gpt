@@ -5,6 +5,14 @@ from users.schemas import UserPublic
 from users.services.users_service import usersService
 
 
+"""Create your Users REST routes here.
+
+Keep the routes (controller layer) clean and simple and put 
+the business logic into the service layer. Djange Ninja will
+automatically generate the OpenAPI schema.
+"""
+
+
 router = Router(
     tags=["Users"],
 )
@@ -16,8 +24,10 @@ def get_user(request, user_id: str):
     return user
 
 
-"""
-Not Implemented CRUD Routes
+"""Not Implemented CRUD Routes
+ 
+To keep a clean REST interface, we implement all CRUD routes 
+but return a 405 Method Not Allowed error, if not implemented.
 """
 
 

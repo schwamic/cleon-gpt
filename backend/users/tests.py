@@ -4,6 +4,13 @@ from ninja.testing import TestClient
 from users.api import router
 
 
+"""Test suite for users API
+
+Naming convention: test_{method_name}
+Database: In-Memory SQLite
+"""
+
+
 TEST_USER_ID = "088948cc-e508-4ead-afde-7b9dd013a940"
 
 

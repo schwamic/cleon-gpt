@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     "django_extensions",
     "corsheaders",
     "channels",
-    "common",
     "conversations",
     "users",
 ]

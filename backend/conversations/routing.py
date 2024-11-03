@@ -3,9 +3,10 @@ from django.urls import re_path
 from conversations.consumers import ChatConsumer
 
 
-"""
-Currently Django-Ninja does not support websocktes. Therefore the configuration for
-websockets is done manually. To keep the code clean, the configuration is defined here.
+""" WebSocket URL configuration
+
+Currently Django-Ninja does not support websocktes;
+therefore the configuration for websockets is done manually.
 """
 websocket_urlpatterns = [
     re_path(

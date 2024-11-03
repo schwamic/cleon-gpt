@@ -19,9 +19,7 @@ from conversations.routing import websocket_urlpatterns
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 
 
-"""
-Initialize Django ASGI application early to ensure the app registry
-"""
+"""Initialize Django ASGI application early to ensure the app registry"""
 django_asgi_app = get_asgi_application()
 
 
