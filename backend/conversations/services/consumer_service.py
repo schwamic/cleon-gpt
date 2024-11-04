@@ -88,12 +88,7 @@ class ChatService:
 
         gathered = None
         for chunk in chain.stream({}):
-            async_to_sync(callback)(
-                {
-                    "type": "ai_message",
-                    "data": {"type": "stream", "message": chunk.content},
-                }
-            )
+            async_to_sync(callback)(chunk.content)
             if gathered is None:
                 gathered = chunk
             else:

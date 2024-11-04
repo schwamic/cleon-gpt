@@ -5,17 +5,18 @@ import { useConversationSocket, useListConfigurationOptions, useGetConversation 
 
 export const ChatEventType = {
     STATUS: "status",
-    MESSAGE: "message",
-    AI_MESSAGE: "ai_message",
-    HUMAN_MESSAGE: "human_message",
-    ERROR: "error"
+    MESSAGE: "message"
 }
 
 export const ChatMessageType = {
     HUMAN_MESSAGE: "human_message",
     AI_MESSAGE: "ai_message",
+    SETTINGS: "update_settings",
 }
 
+/**
+ * useChat (Controller Layer) is a custom hook for managing the chat state. It keeps the main logic for interacting with the chat.
+ */
 function useChat(chatId) {
     const { data: conversation, refetch: getConversation } = useGetConversation(chatId)
     const { data: settingOptions } = useListConfigurationOptions()
@@ -32,54 +33,69 @@ function useChat(chatId) {
         })
     }, [conversation]);
 
+    /**
+     * useEffect for handling incoming messages from the chat socket.
+     */
     useEffect(() => {
         if (lastMessage !== null) {
             const event = JSON.parse(lastMessage.data)
+            const messageType = event?.data?.message_type
             var message = ""
             switch (event?.type) {
                 case ChatEventType.STATUS:
-                    if (event?.data?.eventType === "update_settings") {
+                    if (messageType === ChatMessageType.SETTINGS) {
                         getConversation()
-                    } else {
+                    }
+                    else if (messageType === ChatMessageType.HUMAN_MESSAGE) {
                         message = messageHistory.join("")
-                        setChatHistory((prev) => prev.concat({ type: "ai_message", content: message }));
-                        setMessageHistory([]);
+                        setChatHistory((prev) => prev.concat({ type: ChatMessageType.AI_MESSAGE, content: message }));
+                        setMessageHistory(() => []);
                     }
                     break
                 case ChatEventType.MESSAGE:
-                case ChatEventType.AI_MESSAGE:
-                case ChatEventType.HUMAN_MESSAGE:
-                    message = event?.data?.message
-                    setMessageHistory((prev) => prev.concat(message));
-                    break
-                case ChatEventType.ERROR:
+                    if (messageType === ChatMessageType.AI_MESSAGE) {
+                        message = event?.data?.message
+                        setMessageHistory((prev) => prev.concat(message));
+                    }
                     break
             }
         }
     }, [lastMessage]);
 
+    /** 
+     * Function for handling the sending of messages to the chat socket.
+     */
     const handleClickSendMessage = useCallback((message) => {
         var payload
+        if (typeof message === "string") {
+            payload = {
+                type: ChatEventType.MESSAGE,
+                data: {
+                    message: message,
+                    message_type: ChatMessageType.HUMAN_MESSAGE
+                }
+            }
+        } else {
+            payload = {
+                type: ChatEventType.MESSAGE,
+                data: {
+                    message: message,
+                    message_type: ChatMessageType.SETTINGS
+                }
+            }
+        }
+        sendMessage(JSON.stringify(payload))
+        updateStates(message)
+    }, [sendMessage, isDirty]);
+
+    const updateStates = (message) => {
         if (typeof message === "string") {
             if (!isDirty) {
                 setIsDirty(true);
             }
-            payload = {
-                type: "human_message",
-                data: {
-                    message: message
-                }
-            }
-            setChatHistory((prev) => prev.concat({ type: "human_message", content: message }));
-        } else {
-            payload = {
-                type: "update_settings",
-                data: message
-            }
+            setChatHistory((prev) => prev.concat({ type: ChatMessageType.HUMAN_MESSAGE, content: message }));
         }
-        sendMessage(JSON.stringify(payload))
-    }, [sendMessage, isDirty]);
-
+    }
 
     return [chatHistory, messageHistory, handleClickSendMessage, readyState, isDirty, settingOptions, currentSettings];
 }
