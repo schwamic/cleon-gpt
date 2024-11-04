@@ -42,8 +42,9 @@ function ChatPage() {
                     <ChatConversations
                         chatHistory={chatHistory}
                         messageHistory={messageHistory.join("")} />
-                    : <div className="grid place-content-center h-full">
-                        <h1 className="italic font-black text-lg">{content.welcome_message}</h1>
+                    : <div className="text-center mt-20">
+                        <h2 className="italic font-black text-3xl mb-6">{content.title}</h2>
+                        <h2 className="italic font-black text-lg">{content.welcome_message}</h2>
                     </div>
                 }
             </div>
