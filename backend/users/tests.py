@@ -15,7 +15,7 @@ TEST_USER_ID = "088948cc-e508-4ead-afde-7b9dd013a940"
 
 
 class UsersTest(TestCase):
-    databases = ['default']
+    databases = ["default"]
 
     def test_get_user(self):
         # Arrange

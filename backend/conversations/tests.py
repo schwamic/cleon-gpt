@@ -17,7 +17,7 @@ TEST_CHAT_ID = "579d6fb7-fa62-42bd-80bb-7f4870cbd810"
 
 
 class ConversationsTest(TestCase):
-    databases = ['default']
+    databases = ["default"]
 
     def test_get_conversation(self):
         # Act
@@ -30,10 +30,7 @@ class ConversationsTest(TestCase):
         # Arrange
         payload = {
             "user_id": TEST_USER_ID,
-            "configuration": {
-                "temperature": 0.7,
-                "model": AIModel.Name.GPT_4O
-            }
+            "configuration": {"temperature": 0.7, "model": AIModel.Name.GPT_4O},
         }
         # Act
         client = TestClient(router)

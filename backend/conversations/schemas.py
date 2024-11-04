@@ -36,7 +36,7 @@ class ConversationPublic(Schema):
 class AIModelPublic(ModelSchema):
     class Meta:
         model = AIModel
-        exclude = ['id']
+        exclude = ["id"]
 
 
 class ChatConfigurationOptions(Schema):
@@ -49,4 +49,4 @@ class ChatPublic(ModelSchema):
 
     class Meta:
         model = Chat
-        exclude = ['id', 'users']
+        exclude = ["id", "users"]

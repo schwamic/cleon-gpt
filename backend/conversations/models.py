@@ -21,16 +21,13 @@ class AIModel(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=50)
-    slug_name = models.CharField(
-        choices=Name.choices, max_length=50, unique=True)
+    slug_name = models.CharField(choices=Name.choices, max_length=50, unique=True)
     provider = models.CharField(max_length=50)
-    slug_provider = models.CharField(
-        choices=Provider.choices, max_length=50)
+    slug_provider = models.CharField(choices=Provider.choices, max_length=50)
 
 
 class Chat(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     users = models.ManyToManyField(User, null=True, blank=True)
-    model = models.ForeignKey(
-        AIModel, on_delete=models.SET_NULL, null=True, blank=True)
+    model = models.ForeignKey(AIModel, on_delete=models.SET_NULL, null=True, blank=True)
     configuration = models.JSONField()

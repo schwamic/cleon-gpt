@@ -35,8 +35,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         """
         self.conversation_id = self.scope["url_route"]["kwargs"]["conversation_id"]
         try:
-            self.chat_service = ConsumerService.create_service_by_type(
-                Consumer.CHAT)
+            self.chat_service = ConsumerService.create_service_by_type(Consumer.CHAT)
             chat = await self.chat_service.get_chat(self.conversation_id)
             await self.chat_service.init_chat_model(chat)
             await self.accept()
@@ -58,17 +57,41 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                         content["data"]["message"]
                     )
                     ai_message = await self.chat_service.stream_request(
-                        input_messages, lambda message: self.send_json({
-                            "type": ChatEventType.MESSAGE,
-                            "data": {"message": message, "message_type": ChatMessageType.AI_MESSAGE}
-                        })
+                        input_messages,
+                        lambda message: self.send_json(
+                            {
+                                "type": ChatEventType.MESSAGE,
+                                "data": {
+                                    "message": message,
+                                    "message_type": ChatMessageType.AI_MESSAGE,
+                                },
+                            }
+                        ),
                     )
-                    await self.send_json({"type": ChatEventType.STATUS, "data": {"code": 200, "message_type": ChatMessageType.HUMAN_MESSAGE}})
+                    await self.send_json(
+                        {
+                            "type": ChatEventType.STATUS,
+                            "data": {
+                                "code": 200,
+                                "message_type": ChatMessageType.HUMAN_MESSAGE,
+                            },
+                        }
+                    )
                     # Feature: Save messages to the database here, to be able to replay the conversation
                     # await self.chat_service.save_events([message, ai_message])
                 case ChatMessageType.SETTINGS:
                     chat = await self.chat_service.update_model_configuration(message)
                     await self.chat_service.init_chat_model(chat)
-                    await self.send_json({"type": ChatEventType.STATUS, "data": {"code": 200, "message_type": ChatMessageType.SETTINGS}})
+                    await self.send_json(
+                        {
+                            "type": ChatEventType.STATUS,
+                            "data": {
+                                "code": 200,
+                                "message_type": ChatMessageType.SETTINGS,
+                            },
+                        }
+                    )
                 case _:
-                    await self.send_json({"type": ChatEventType.STATUS, "data": {"code": 400}})
+                    await self.send_json(
+                        {"type": ChatEventType.STATUS, "data": {"code": 400}}
+                    )

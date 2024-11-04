@@ -2,7 +2,7 @@ import requests
 import os
 
 
-class WeatherAPIClient():
+class WeatherAPIClient:
     """
     A Client used to represent the interface for https://www.weatherapi.com/
 

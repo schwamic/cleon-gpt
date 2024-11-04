@@ -1,8 +1,7 @@
-""" Metaprompts for the AI Clients
+"""Metaprompts for the AI Clients
 
 Add your metaprompts here.
 """
-
 
 MARKDOWN_ASSISTANT = """
     As an assistant, you will respond to the user in Markdown format. Follow these guidelines to ensure clarity and helpfulness in your responses:

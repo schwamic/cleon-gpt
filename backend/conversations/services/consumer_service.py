@@ -71,7 +71,7 @@ class ChatService:
     def collect_context(self, input: str) -> list:
         """Function Calling
         Processes the input to find out which functions to call and
-        returns function results as messages  
+        returns function results as messages
         """
         llm_with_tools = self.llm.bind_tools([get_current_weather])
         messages = [HumanMessage(input)]
@@ -80,14 +80,12 @@ class ChatService:
         for tool_call in ai_msg.tool_calls:
             selected_tool = self.functions[tool_call["name"].lower()]
             tool_output = selected_tool.invoke(tool_call["args"])
-            messages.append(FunctionMessage(
-                tool_output, name=tool_call["name"]))
+            messages.append(FunctionMessage(tool_output, name=tool_call["name"]))
         return messages
 
     @sync_to_async
     def stream_request(self, messages: list, callback):
-        prompt = ChatPromptTemplate.from_messages(
-            [self.system_message] + messages)
+        prompt = ChatPromptTemplate.from_messages([self.system_message] + messages)
         chain = prompt | self.llm
 
         gathered = None

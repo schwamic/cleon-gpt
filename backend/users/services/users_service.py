@@ -5,7 +5,7 @@ from users.models import User
 
 
 class UsersService:
-    """Service Layer 
+    """Service Layer
     Handels events from Users REST Controller Layer (api.py)
     """
 

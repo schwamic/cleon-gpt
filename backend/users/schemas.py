@@ -13,4 +13,4 @@ Models are defined in models.py
 class UserPublic(ModelSchema):
     class Meta:
         model = User
-        fields = ['id', 'nickname']
+        fields = ["id", "nickname"]
