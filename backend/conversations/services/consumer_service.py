@@ -69,6 +69,10 @@ class ChatService:
 
     @sync_to_async
     def collect_context(self, input: str) -> list:
+        """Function Calling
+        Processes the input to find out which functions to call and
+        returns function results as messages  
+        """
         llm_with_tools = self.llm.bind_tools([get_current_weather])
         messages = [HumanMessage(input)]
         ai_msg = llm_with_tools.invoke(messages)

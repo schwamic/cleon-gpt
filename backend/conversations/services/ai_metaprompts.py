@@ -1,6 +1,6 @@
 """ Metaprompts for the AI Clients
 
-Add your metaprompts here
+Add your metaprompts here.
 """
 
 
