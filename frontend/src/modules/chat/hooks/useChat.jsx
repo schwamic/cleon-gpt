@@ -67,7 +67,8 @@ function useChat(chatId) {
      */
     const handleClickSendMessage = useCallback((message) => {
         var payload
-        if (typeof message === "string") {
+        const isChatMessage = typeof message === "string"
+        if (isChatMessage) {
             payload = {
                 type: ChatEventType.MESSAGE,
                 data: {
@@ -89,7 +90,8 @@ function useChat(chatId) {
     }, [sendMessage, isDirty]);
 
     const updateStates = (message) => {
-        if (typeof message === "string") {
+        const isChatMessage = typeof message === "string"
+        if (isChatMessage) {
             if (!isDirty) {
                 setIsDirty(true);
             }
