@@ -3,8 +3,15 @@
 ## Local Development
 
 1. Open VS Code
-2. Open frontend project as DevContainer: Frontend Container
-3. Wait until VS Code is ready – this can take a while
+2. Open backend project as DevContainer: `Reopen in Container -> Frontend Container`
+![reopen_in_container](./docs/reopen_in_container.png)
+![frontend_container](./docs/frontend_container.png)
+3. Wait until VS Code has configured DevContainer – this can take a while
 4. Add a `.env` file (keys see email)
-5. Start server via `npm run dev` at `http://localhost:8080/`
-6. (If you get an error like `Bus error`, delete node_modules and install dependencies again via `npm install`)
+5. Open new terminal in VS Code
+6. Start server via `npm run dev` at `http://localhost:8080/`
+![frontend_app](./docs/frontend_app.png)
+
+### Troubleshooting
+
+1. If you get an error like `Bus error`, delete node_modules and install dependencies again via `npm install`
