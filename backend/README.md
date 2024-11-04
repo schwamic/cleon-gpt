@@ -20,6 +20,6 @@
 9. Start development server via `./manage.py runserver` and open `http://127.0.0.1:8000/api/v1/docs`
 ![backend_api](./docs/backend_api.png)
 
-### Bug Fix
+### Troubleshooting
 
 1. Not able to load `.env`: Close the terminal and open it again. Make shure you are in the right environment `which python` (`source .venv/bin/activate`).
