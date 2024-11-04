@@ -19,7 +19,7 @@ class UsersTest(TestCase):
 
     def test_get_user(self):
         # Arrange
-        user = {"id": TEST_USER_ID, "nickname": "Tester"}
+        user = {"id": TEST_USER_ID, "nickname": "Demerzel"}
         # Act
         client = TestClient(router)
         response = client.get(f"/{TEST_USER_ID}")

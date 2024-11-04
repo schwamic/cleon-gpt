@@ -28,7 +28,7 @@ def run():
 
     User.objects.get_or_create(
         id=UUID("088948cc-e508-4ead-afde-7b9dd013a940"),
-        nickname="Tester",
+        nickname="Demerzel",
     )
 
     Chat.objects.get_or_create(

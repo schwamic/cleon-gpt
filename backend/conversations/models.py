@@ -34,16 +34,3 @@ class Chat(models.Model):
     model = models.ForeignKey(
         AIModel, on_delete=models.SET_NULL, null=True, blank=True)
     configuration = models.JSONField()
-
-
-class ChatEvents(models.Model):
-    class Type(models.TextChoices):
-        HUMAN_MESSAGE = "human_message"
-        AI_MESSAGE = "ai_message"
-        FUNCTION_MESSAGE = "function_message"
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, blank=True)
-    chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
-    type = models.CharField(choices=Type.choices, max_length=50)
-    created_at = models.DateTimeField(auto_now_add=True)
