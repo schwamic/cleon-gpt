@@ -40,11 +40,13 @@ class ChatService:
 
     def __init__(self):
         self.llm = None
+        self.chat_id = None
         self.functions = {"get_current_weather": get_current_weather}
         self.system_message = SystemMessage(metaprompts.MARKDOWN_ASSISTANT)
 
     @database_sync_to_async
     def get_chat(self, chat_id: str) -> Chat:
+        self.chat_id = chat_id
         chat = Chat.objects.get(id=UUID(chat_id))
         return chat
 
@@ -56,19 +58,14 @@ class ChatService:
         if chat.model.slug_provider == AIModel.Provider.AZURE_OPEN_AI:
             if isinstance(chat.configuration, str):
                 chat.configuration = json.loads(chat.configuration)
-            try:
-                self.llm = AzureChatOpenAI(
-                    model=chat.model.slug_name,
-                    temperature=chat.configuration["temperature"],
-                    api_version=getenv("OPENAI_API_VERSION"),
-                )
-                return self.llm
-            except Exception as e:
-                print(e)
-
+            self.llm = AzureChatOpenAI(
+                model=chat.model.slug_name,
+                temperature=chat.configuration["temperature"],
+                api_version=getenv("OPENAI_API_VERSION"),
+            )
+            return self.llm
         else:
             raise Exception("Model not supported")
-        return self.llm
 
     @sync_to_async
     def collect_context(self, input: str) -> list:
@@ -102,6 +99,17 @@ class ChatService:
             else:
                 gathered = gathered + chunk
         return gathered.content
+
+    @database_sync_to_async
+    def update_model_configuration(self, payload: dict) -> Chat:
+        chat = Chat.objects.get(id=UUID(self.chat_id))
+        if "model" in payload:
+            ai_model = AIModel.objects.get(slug_name=payload["model"])
+            chat.model = ai_model
+        if "temperature" in payload:
+            chat.configuration = {"temperature": float(payload["temperature"])}
+        chat.save()
+        return chat
 
 
 """LangChain Tools

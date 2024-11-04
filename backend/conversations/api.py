@@ -1,12 +1,15 @@
+from pydantic import UUID4
+
 from ninja import Router
 from ninja.errors import HttpError
+
 from conversations.schemas import (
     ChatConfigurationOptions,
+    ChatPublic,
     ConversationCreate,
     ConversationPublic,
 )
 from conversations.services.conversations_service import conversationsService
-
 
 """Create your Conversations REST routes here.
 
@@ -21,16 +24,22 @@ router = Router(
 )
 
 
-@router.post("/", response=ConversationPublic)
-def create_conversation(request, payload: ConversationCreate):
-    chat = conversationsService.create_conversation(payload)
-    return chat
-
-
 @router.post(":list_configuration_options", response=ChatConfigurationOptions)
 def list_configuration_options(request):
     configuration = conversationsService.list_configuration_options()
     return configuration
+
+
+@router.get("/{chat_id}", response=ChatPublic)
+def get_conversation(request, chat_id: UUID4):
+    chat = conversationsService.get_conversation(chat_id)
+    return chat
+
+
+@router.post("/", response=ConversationPublic)
+def create_conversation(request, payload: ConversationCreate):
+    chat = conversationsService.create_conversation(payload)
+    return chat
 
 
 """Not Implemented CRUD Routes
@@ -40,26 +49,21 @@ but return a 405 Method Not Allowed error, if not implemented.
 """
 
 
-@router.get("/{chat_id}")
-def get_converstion(request, chat_id: str):
-    raise HttpError(405, "Method Not Allowed")
-
-
 @router.get("/")
 def list_converstions(request):
     raise HttpError(405, "Method Not Allowed")
 
 
 @router.patch("/{chat_id}")
-def update_converstion(request, chat_id: str):
+def update_converstion(request, chat_id: UUID4):
     raise HttpError(405, "Method Not Allowed")
 
 
 @router.put("/{chat_id}")
-def replace_converstion(request, chat_id: str):
+def replace_converstion(request, chat_id: UUID4):
     raise HttpError(405, "Method Not Allowed")
 
 
 @router.delete("/{chat_id}")
-def delete_converstion(request, chat_id: str):
+def delete_converstion(request, chat_id: UUID4):
     raise HttpError(405, "Method Not Allowed")

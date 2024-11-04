@@ -13,10 +13,18 @@ Database: In-Memory SQLite
 
 
 TEST_USER_ID = "088948cc-e508-4ead-afde-7b9dd013a940"
+TEST_CHAT_ID = "579d6fb7-fa62-42bd-80bb-7f4870cbd810"
 
 
 class ConversationsTest(TestCase):
     databases = ['default']
+
+    def test_get_conversation(self):
+        # Act
+        client = TestClient(router)
+        response = client.get(f"/{TEST_CHAT_ID}")
+        # Assert
+        self.assertEqual(response.status_code, 200)
 
     def test_create_converstaion(self):
         # Arrange

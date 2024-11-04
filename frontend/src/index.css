@@ -33,3 +33,7 @@ Markdown Styling
 #chat-conversation code {
     @apply break-all
 }
+
+#chat-conversation blockquote {
+    @apply italic
+}

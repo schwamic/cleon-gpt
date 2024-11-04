@@ -1,12 +1,14 @@
 from uuid import UUID
 
 from django.shortcuts import get_object_or_404
+from pydantic import UUID4
 
 from conversations.models import AIModel, Chat
 from conversations.schemas import (
     ChatConfigurationOptions,
     ConversationCreate,
     Temperature,
+    ChatPublic
 )
 from users.models import User
 
@@ -42,6 +44,10 @@ class ConversationsService:
             models=models,
             temperatures=temperatures
         )
+
+    def get_conversation(self, chat_id: UUID4) -> Chat:
+        chat = get_object_or_404(Chat, id=chat_id)
+        return chat
 
 
 conversationsService = ConversationsService()

@@ -1,9 +1,9 @@
 from ninja import Router
 from ninja.errors import HttpError
+from pydantic import UUID4
 
 from users.schemas import UserPublic
 from users.services.users_service import usersService
-
 
 """Create your Users REST routes here.
 
@@ -19,7 +19,7 @@ router = Router(
 
 
 @router.get("/{user_id}", response=UserPublic)
-def get_user(request, user_id: str):
+def get_user(request, user_id: UUID4):
     user = usersService.get_user(user_id)
     return user
 
@@ -42,15 +42,15 @@ def create_user(request):
 
 
 @router.patch("/{user_id}")
-def update_user(request, user_id: str):
+def update_user(request, user_id: UUID4):
     raise HttpError(405, "Method Not Allowed")
 
 
 @router.put("/{user_id}")
-def replace_user(request, user_id: str):
+def replace_user(request, user_id: UUID4):
     raise HttpError(405, "Method Not Allowed")
 
 
 @router.delete("/{user_id}")
-def delete_user(request, user_id: str):
+def delete_user(request, user_id: UUID4):
     raise HttpError(405, "Method Not Allowed")

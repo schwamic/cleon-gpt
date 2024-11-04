@@ -13,7 +13,7 @@ const CHAT_ID = "579d6fb7-fa62-42bd-80bb-7f4870cbd810"
 
 function ChatPage() {
     const { data: user } = useGetUser(USER_ID)
-    const [chatHistory, messageHistory, handleClickSendMessage, readyState, isDirty] = useChat(CHAT_ID)
+    const [chatHistory, messageHistory, handleClickSendMessage, readyState, isDirty, settingOptions, currentSettings] = useChat(CHAT_ID)
     const scrollContainerRef = useRef(null);
 
     useEffect(() => {
@@ -27,6 +27,9 @@ function ChatPage() {
         <Frame className="flex flex-col">
             <div>
                 <ChatHeader
+                    settings={settingOptions}
+                    currentSettings={currentSettings}
+                    onSettingsChange={handleClickSendMessage}
                     nickname={user?.nickname}
                     isOnline={readyState === ReadyState.OPEN} />
             </div>

@@ -25,6 +25,20 @@ export function useGetUser(userId) {
     });
 }
 
+export function useGetConversation(chatId) {
+    return useQuery(['conversations', chatId], async () => {
+        return query(`${HTTP_API_V1_URL}/conversations/${chatId}`);
+    });
+}
+
+export function useListConfigurationOptions() {
+    return useQuery({
+        queryKey: ['chatConfiguration'],
+        queryFn: () => mutate(`${HTTP_API_V1_URL}/conversations/:list_configuration_options`, {}),
+        initialData: { models: [], temperatures: [] },
+    });
+}
+
 export function useCreateConversation(payload) {
     return useMutation(async () => {
         return mutate(

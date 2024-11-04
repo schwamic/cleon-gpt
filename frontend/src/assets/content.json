@@ -3,5 +3,5 @@
     "message_input_placeholder": "Message CleonGPT...",
     "gpt_warning": "CleonGPT can make mistakes.",
     "chat_input_info": "(press 'Enter')",
-    "new_chat_btn": "New Chat"
+    "chat_settings_btn": "Settings"
 }

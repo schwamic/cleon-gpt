@@ -24,7 +24,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             self.chat_service = ConsumerService.create_service_by_type(
                 Consumer.CHAT)
             chat = await self.chat_service.get_chat(self.conversation_id)
-            self.llm = await self.chat_service.init_chat_model(chat)
+            await self.chat_service.init_chat_model(chat)
             await self.accept()
         except Exception as e:
             print(e)
@@ -33,21 +33,24 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def receive_json(self, content):
         """Handle incoming events
 
-        * Save messages to the database as kind of chat memory, to be able
-        to replay the conversation
-        * Process messages via chat service
+        * Routes messages to the appropriate service
+        * Sends messages to the client (optional)
         """
-        if content["type"] == "human_message":
-            # TODO (not implemented yet)
-            # await self.chat_service.save_event(ai_message, type="human_message")
-            input_messages = await self.chat_service.collect_context(
-                content["data"]["message"]
-            )
-            ai_message = await self.chat_service.stream_request(
-                input_messages, lambda msg: self.send_json(msg)
-            )
-            await self.send_json({"type": "status", "data": {"ready": 1}})
-            # TODO (not implemented yet)
-            # await self.chat_service.save_event(ai_message, type="ai_message")
-        else:
-            await self.send_json({"type": "error", "data": {"message": "Invalid type"}})
+        match content["type"]:
+            case "human_message":
+                input_messages = await self.chat_service.collect_context(
+                    content["data"]["message"]
+                )
+                ai_message = await self.chat_service.stream_request(
+                    input_messages, lambda msg: self.send_json(msg)
+                )
+                await self.send_json({"type": "status", "data": {"ready": 1, "eventType": "human_message"}})
+                # Feature: Save messages to the database to be able to replay the conversation
+                # human_message: content["data"]["message"]
+                # await self.chat_service.save_events([human_message, ai_message])
+            case "update_settings":
+                chat = await self.chat_service.update_model_configuration(content["data"])
+                await self.chat_service.init_chat_model(chat)
+                await self.send_json({"type": "status", "data": {"ready": 1, "eventType": "update_settings"}})
+            case _:
+                await self.send_json({"type": "error", "data": {"message": "Invalid type"}})

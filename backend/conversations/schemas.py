@@ -3,7 +3,7 @@ from uuid import UUID
 
 from ninja import Field, ModelSchema, Schema
 
-from conversations.models import AIModel
+from conversations.models import AIModel, Chat
 
 
 """Schemas for domain Conversations
@@ -19,16 +19,14 @@ class Temperature(float, Enum):
     HIGH = 0.9
 
 
-class ChatConfiguration(Schema):
-    top_p: float | None = None
-    seed: int | None = None
+class CreateChatConfiguration(Schema):
     temperature: Temperature
-    model: str = Field(choi="model")
+    model: str
 
 
 class ConversationCreate(Schema):
     user_id: str
-    configuration: ChatConfiguration
+    configuration: CreateChatConfiguration
 
 
 class ConversationPublic(Schema):
@@ -44,3 +42,11 @@ class AIModelPublic(ModelSchema):
 class ChatConfigurationOptions(Schema):
     models: list[AIModelPublic]
     temperatures: list[float]
+
+
+class ChatPublic(ModelSchema):
+    model: AIModelPublic
+
+    class Meta:
+        model = Chat
+        exclude = ['id', 'users']
