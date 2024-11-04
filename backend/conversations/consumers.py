@@ -6,14 +6,14 @@ from conversations.services.consumer_service import Consumer, ConsumerService
 
 
 class ChatEventType(str, Enum):
-    STATUS = "status",
+    STATUS = "status"
     MESSAGE = "message"
 
 
 class ChatMessageType(str, Enum):
-    HUMAN_MESSAGE = "human_message",
-    AI_MESSAGE = "ai_message",
-    SETTINGS = "update_settings",
+    HUMAN_MESSAGE = "human_message"
+    AI_MESSAGE = "ai_message"
+    SETTINGS = "update_settings"
 
 
 """Consumers are WebSocket controllers that handle events.
