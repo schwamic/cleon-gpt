@@ -11,6 +11,10 @@ import content from '/src/assets/content.json';
 const USER_ID = "088948cc-e508-4ead-afde-7b9dd013a940"
 const CHAT_ID = "579d6fb7-fa62-42bd-80bb-7f4870cbd810"
 
+
+/**
+ * Main Chat Page (View Layer)
+ */
 function ChatPage() {
     const { data: user } = useGetUser(USER_ID)
     const [chatHistory, messageHistory, handleClickSendMessage, readyState, isDirty, settingOptions, currentSettings] = useChat(CHAT_ID)

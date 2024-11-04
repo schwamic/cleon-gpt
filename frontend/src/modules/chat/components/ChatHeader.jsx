@@ -6,6 +6,9 @@ import { Avatar, Dropdown, Radio } from '/src/modules/common/ui-components'
 import content from '/src/assets/content.json';
 
 
+/**
+ * ChatHeader component is used for editing chat settings and displaying the users avatar.
+ */
 function ChatHeader({ className, nickname, settings, currentSettings, onSettingsChange, isOnline = false, ...props }) {
     const handleChange = (event) => {
         const { name, checked, value } = event.target;
@@ -63,8 +66,8 @@ function ChatHeader({ className, nickname, settings, currentSettings, onSettings
 
 ChatHeader.propTypes = {
     onSettingsChange: PropTypes.func,
-    settings: PropTypes.dict,
-    currentSettings: PropTypes.dict,
+    settings: PropTypes.object,
+    currentSettings: PropTypes.object,
     nickname: PropTypes.string,
     isOnline: PropTypes.bool,
     className: PropTypes.string,

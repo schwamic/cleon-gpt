@@ -5,7 +5,9 @@ import { Send } from 'lucide-react';
 
 import content from '/src/assets/content.json';
 
-
+/**
+ * ChatMessageInput component is a textarea input for sending messages in the chat.
+ */
 function ChatMessageInput({ className, disabled = false, onClick, ...props }) {
     const [text, setText] = useState('');
 

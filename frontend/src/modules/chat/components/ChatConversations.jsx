@@ -5,6 +5,11 @@ import Markdown from 'react-markdown'
 import { ChatMessageType } from '/src/modules/chat/hooks/useChat'
 
 
+/**
+ * ChatConversations component is used to display chat messages in the chat.
+ * - HUMAN_MESSAGE is displayed in a chat bubble.
+ * - AI_MESSAGE is displayed as markdown.
+ */
 function ChatConversations({ className, chatHistory, messageHistory, ...props }) {
     return (
         <div className={classnames("", className)} {...props} id="chat-conversation">
