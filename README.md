@@ -1,9 +1,11 @@
 # Cleon GPT
 
-## Developmet
+## Local Developmet
 
-- [Backend](./backend/)
-- [Frontend](./frontend/)
+To get the project running on your local environment, follow the steps:
+
+- [Backend Guide](./backend/)
+- [Frontend Guide](./frontend/)
 
 ## Why "Cleon"?
 
