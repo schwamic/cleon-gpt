@@ -16,14 +16,14 @@ def run():
         provider="Azure OpenAI",
         slug_provider=AIModel.Provider.AZURE_OPEN_AI,
         name="GPT-4o",
-        slug_name=AIModel.Name.GPT_4O,
+        slug_name="gpt-4o",
     )
 
     model, isCreated = AIModel.objects.get_or_create(
         provider="Azure OpenAI",
         slug_provider=AIModel.Provider.AZURE_OPEN_AI,
         name="GPT-4o mini",
-        slug_name=AIModel.Name.GPT_4O_MINI,
+        slug_name="gpt-4o-mini",
     )
 
     User.objects.get_or_create(
