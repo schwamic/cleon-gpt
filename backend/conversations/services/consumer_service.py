@@ -7,7 +7,8 @@ from asgiref.sync import async_to_sync, sync_to_async
 from channels.db import database_sync_to_async
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import FunctionMessage, HumanMessage, SystemMessage
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.tools import tool
 from langchain_openai import AzureChatOpenAI
 
@@ -18,6 +19,11 @@ from conversations.models import AIModel, Chat
 
 class Consumer(str, Enum):
     CHAT = "chat"
+
+
+class Configuration(str, Enum):
+    MODEL = "model"
+    TEMPERATURE = "temperature"
 
 
 class ConsumerService:
@@ -43,6 +49,9 @@ class ChatService:
         self.chat_id = None
         self.functions = {"get_current_weather": get_current_weather}
         self.system_message = SystemMessage(metaprompts.MARKDOWN_ASSISTANT)
+        self.prompt_template = ChatPromptTemplate(
+            [self.system_message, MessagesPlaceholder("msgs")]
+        )
 
     @database_sync_to_async
     def get_chat(self, chat_id: str) -> Chat:
@@ -82,32 +91,26 @@ class ChatService:
         for tool_call in ai_msg.tool_calls:
             selected_tool = self.functions[tool_call["name"].lower()]
             tool_output = selected_tool.invoke(tool_call["args"])
-            messages.append(FunctionMessage(
-                tool_output, name=tool_call["name"]))
+            messages.append(FunctionMessage(tool_output, name=tool_call["name"]))
         return messages
 
     @sync_to_async
     def stream_request(self, messages: list, callback):
-        prompt = ChatPromptTemplate.from_messages(
-            [self.system_message] + messages)
-        chain = prompt | self.llm
-
-        gathered = None
-        for chunk in chain.stream({}):
-            async_to_sync(callback)(chunk.content)
-            if gathered is None:
-                gathered = chunk
-            else:
-                gathered = gathered + chunk
-        return gathered.content
+        parser = StrOutputParser()
+        chain = self.prompt_template | self.llm | parser
+        ai_message = ""
+        for chunk in chain.stream({"msgs": messages}):
+            async_to_sync(callback)(chunk)
+            ai_message = ai_message + chunk
+        return ai_message
 
     @database_sync_to_async
     def update_model_configuration(self, payload: dict) -> Chat:
         chat = Chat.objects.get(id=UUID(self.chat_id))
-        if "model" in payload:
+        if Configuration.MODEL in payload:
             ai_model = AIModel.objects.get(slug_name=payload["model"])
             chat.model = ai_model
-        if "temperature" in payload:
+        if Configuration.TEMPERATURE in payload:
             chat.configuration = {"temperature": float(payload["temperature"])}
         chat.save()
         return chat
