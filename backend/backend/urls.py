@@ -17,11 +17,31 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from django.shortcuts import redirect
+from ninja import NinjaAPI, Redoc
 
-from .api import api_v1
+from conversations.api import router as conversations_router
+from users.api import router as users_router
 
+
+"""
+HTTP(s) REST API configuration
+"""
+rest_api_v1 = NinjaAPI(
+    docs=Redoc(),
+    version="0.1.1",
+    urls_namespace="public_api",
+    title="Cleon OpenAPI",
+    description="Cleon OpenAPI documentation for REST requests. See http://localhost:8000/api/v1/docs/asyncapi/v3 for Websocket API documentation.",
+    docs_url="/docs/openapi/v3/"
+)
+
+rest_api_v1.add_router("/conversations/", conversations_router)
+rest_api_v1.add_router("/users/", users_router)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/v1/", api_v1.urls),
+    path("api/v1/", rest_api_v1.urls),
+    path("api/v1/docs/asyncapi/v3/", lambda request: redirect(
+        "https://studio.asyncapi.com/?share=4594dc10-eb4a-4c8b-8f38-1f0338c70afe"), name="asyncapi"),
 ]
