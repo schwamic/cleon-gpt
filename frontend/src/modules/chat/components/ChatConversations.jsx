@@ -10,7 +10,7 @@ import { ChatMessageType } from '/src/modules/chat/hooks/useChat'
  * - HUMAN_MESSAGE is displayed in a chat bubble.
  * - AI_MESSAGE is displayed as markdown.
  */
-function ChatConversations({ className, chatHistory, messageHistory, ...props }) {
+function ChatConversations({ className, chatHistory, messageChunks, ...props }) {
     return (
         <div className={classnames("", className)} {...props} id="chat-conversation">
             {chatHistory?.map((message, idx) => (
@@ -25,13 +25,13 @@ function ChatConversations({ className, chatHistory, messageHistory, ...props })
                     ) : null}
                 </div>
             ))}
-            {messageHistory}
+            <Markdown>{messageChunks.join("")}</Markdown>
         </div>
     )
 }
 
 ChatConversations.propTypes = {
-    messageHistory: PropTypes.string.isRequired,
+    messageChunks: PropTypes.array.isRequired,
     chatHistory: PropTypes.array.isRequired,
     className: PropTypes.string,
 }

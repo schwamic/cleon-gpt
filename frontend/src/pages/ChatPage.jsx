@@ -17,7 +17,7 @@ const CHAT_ID = "579d6fb7-fa62-42bd-80bb-7f4870cbd810"
  */
 function ChatPage() {
     const { data: user } = useGetUser(USER_ID)
-    const [chatHistory, messageHistory, handleClickSendMessage, readyState, isDirty, settingOptions, currentSettings] = useChat(CHAT_ID)
+    const [chatHistory, messageChunks, handleClickSendMessage, readyState, isDirty, settingOptions, currentSettings] = useChat(CHAT_ID)
     const scrollContainerRef = useRef(null);
 
     useEffect(() => {
@@ -25,7 +25,7 @@ function ChatPage() {
             return;
         }
         scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
-    }, [messageHistory, chatHistory]);
+    }, [messageChunks, chatHistory]);
 
     return (
         <Frame className="flex flex-col">
@@ -41,7 +41,7 @@ function ChatPage() {
                 {isDirty ?
                     <ChatConversations
                         chatHistory={chatHistory}
-                        messageHistory={messageHistory.join("")} />
+                        messageChunks={messageChunks} />
                     : <div className="text-center mt-20">
                         <h2 className="italic font-black text-3xl mb-6">{content.title}</h2>
                         <h2 className="italic font-black text-lg">{content.welcome_message}</h2>

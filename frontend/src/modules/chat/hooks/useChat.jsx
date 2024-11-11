@@ -21,7 +21,7 @@ export const ChatMessageType = {
 function useChat(chatId) {
     const { data: conversation, refetch: getConversation } = useGetConversation(chatId)
     const { data: settingOptions } = useListConfigurationOptions()
-    const [messageHistory, setMessageHistory] = useState([]);
+    const [messageChunks, setMessageChunks] = useState([]);
     const [chatHistory, setChatHistory] = useState([]);
     const { sendMessage, lastMessage, readyState } = useConversationSocket(chatId);
     const [isDirty, setIsDirty] = useState(false);
@@ -49,12 +49,12 @@ function useChat(chatId) {
                 getConversation()
                 break
             case ChatMessageType.AI_MESSAGE:
-                if (messageHistory.length > 0) {
-                    processMessageHistory.current(messageHistory.join(""))
+                if (messageChunks.length > 0) {
+                    processMessageHistory.current(messageChunks.join(""))
                 }
                 break
         }
-    }, [lastMessage, messageHistory]);
+    }, [lastMessage, messageChunks]);
 
     /**
      * useEffect for handling incoming messages of type MESSAGE from the chat socket.
@@ -80,7 +80,7 @@ function useChat(chatId) {
     const processMessageQueue = useRef(
         throttle(() => {
             const messageString = messageQueue.current.join("")
-            setMessageHistory((prev) => prev.concat(messageString))
+            setMessageChunks((prev) => prev.concat(messageString))
             messageQueue.current = []
         }, 100)
     );
@@ -91,7 +91,7 @@ function useChat(chatId) {
     const processMessageHistory = useRef(
         debounce((message) => {
             setChatHistory((prev) => prev.concat({ type: ChatMessageType.AI_MESSAGE, content: message }));
-            setMessageHistory(() => []);
+            setMessageChunks(() => []);
         }, 200)
     );
 
@@ -132,7 +132,7 @@ function useChat(chatId) {
         }
     }
 
-    return [chatHistory, messageHistory, handleClickSendMessage, readyState, isDirty, settingOptions, currentSettings];
+    return [chatHistory, messageChunks, handleClickSendMessage, readyState, isDirty, settingOptions, currentSettings];
 }
 
 useChat.propTypes = {
