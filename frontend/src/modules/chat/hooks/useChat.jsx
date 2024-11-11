@@ -48,7 +48,7 @@ function useChat(chatId) {
             case ChatMessageType.SETTINGS:
                 getConversation()
                 break
-            case ChatMessageType.HUMAN_MESSAGE:
+            case ChatMessageType.AI_MESSAGE:
                 if (messageHistory.length > 0) {
                     processMessageHistory.current(messageHistory.join(""))
                 }
