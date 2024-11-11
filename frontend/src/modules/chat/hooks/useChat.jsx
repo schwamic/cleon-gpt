@@ -50,7 +50,7 @@ function useChat(chatId) {
                 break
             case ChatMessageType.HUMAN_MESSAGE:
                 if (messageChunks.length > 0) {
-                    processMessageHistory.current(messageChunks.join(""))
+                    processMessageChunks.current(messageChunks)
                 }
                 break
         }
@@ -88,9 +88,9 @@ function useChat(chatId) {
     /**
      * Utility: Debounce to only process the final message
      */
-    const processMessageHistory = useRef(
-        debounce((message) => {
-            setChatHistory((prev) => prev.concat({ type: ChatMessageType.AI_MESSAGE, content: message }));
+    const processMessageChunks = useRef(
+        debounce((chunks) => {
+            setChatHistory((prev) => prev.concat({ type: ChatMessageType.AI_MESSAGE, content: chunks.join("") }));
             setMessageChunks(() => []);
         }, 200)
     );
