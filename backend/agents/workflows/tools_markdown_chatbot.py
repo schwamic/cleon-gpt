@@ -2,6 +2,7 @@ from enum import Enum
 
 from langchain_core.messages import SystemMessage
 from langchain_openai import ChatOpenAI
+from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 
@@ -20,7 +21,8 @@ class ToolsMarkdownWorkflow():
     def __init__(self, llm):
         self.tools = [get_current_weather]
         self.llm_with_tools = llm.bind_tools(self.tools)
-        self.graph = self.build_graph().compile()
+        self.memory = MemorySaver()
+        self.graph = self.build_graph().compile(checkpointer=self.memory)
 
     def build_graph(self) -> StateGraph:
         """Short Term Memory (~ReAct Framework)

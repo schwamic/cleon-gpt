@@ -45,11 +45,13 @@ class ChatService:
     def __init__(self):
         self.chat_id = None
         self.agent = None
+        self.config = None
 
     @database_sync_to_async
     def get_chat(self, chat_id: str) -> Chat:
         self.chat_id = chat_id
         chat = Chat.objects.get(id=UUID(chat_id))
+        self.config = {"configurable": {"thread_id": chat_id}}
         return chat
 
     # TODO
@@ -79,7 +81,7 @@ class ChatService:
         Filter by custom tag "result_node", to stream only values from the result_model
         """
         ai_message = ""
-        for msg, metadata in self.agent.stream({"messages": [HumanMessage(user_prompt)]}, stream_mode="messages"):
+        for msg, metadata in self.agent.stream({"messages": [HumanMessage(user_prompt)]}, stream_mode="messages", config=self.config):
             if (
                 msg.content
                 and not isinstance(msg, HumanMessage)
