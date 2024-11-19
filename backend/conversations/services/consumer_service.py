@@ -5,15 +5,10 @@ from uuid import UUID
 
 from asgiref.sync import async_to_sync, sync_to_async
 from channels.db import database_sync_to_async
-from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import FunctionMessage, HumanMessage, SystemMessage
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.tools import tool
+from langchain_core.messages import HumanMessage
 from langchain_openai import AzureChatOpenAI
 
-import conversations.services.ai_metaprompts as metaprompts
-from conversations.clients.weatherapi_client import WeatherAPIClient
+from agents.workflows.tools_markdown_chatbot import Node, ToolsMarkdownWorkflow
 from conversations.models import AIModel, Chat
 from conversations.schemas import UpdateChatConfiguration
 
@@ -38,6 +33,8 @@ class ConsumerService:
         Create the correct service based on the consumer type"""
         if consumer_type == Consumer.CHAT:
             return ChatService()
+        else:
+            raise Exception("Consumer not supported")
 
 
 class ChatService:
@@ -46,13 +43,8 @@ class ChatService:
     """
 
     def __init__(self):
-        self.llm = None
         self.chat_id = None
-        self.functions = {"get_current_weather": get_current_weather}
-        self.system_message = SystemMessage(metaprompts.MARKDOWN_ASSISTANT)
-        self.prompt_template = ChatPromptTemplate(
-            [self.system_message, MessagesPlaceholder("msgs")]
-        )
+        self.agent = None
 
     @database_sync_to_async
     def get_chat(self, chat_id: str) -> Chat:
@@ -60,50 +52,41 @@ class ChatService:
         chat = Chat.objects.get(id=UUID(chat_id))
         return chat
 
+    # TODO
+    # * Add last chat state if available
     @sync_to_async
-    def init_chat_model(self, chat: Chat) -> BaseChatModel:
+    def init_chat_model(self, chat: Chat) -> None:
         """Factory Method
-        Create the correct language model based on the ChatModel
+        Create the correct language model based on the chat object
         """
         if chat.model.slug_provider == AIModel.Provider.AZURE_OPEN_AI:
             if isinstance(chat.configuration, str):
                 chat.configuration = json.loads(chat.configuration)
-            self.llm = AzureChatOpenAI(
+            llm = AzureChatOpenAI(
                 model=chat.model.slug_name,
                 temperature=chat.configuration["temperature"],
                 api_version=getenv("OPENAI_API_VERSION"),
                 api_key=getenv("AZURE_OPENAI_API_KEY"),
                 azure_endpoint=getenv("AZURE_OPENAI_ENDPOINT"),
             )
-            return self.llm
+            self.agent = ToolsMarkdownWorkflow(llm).graph
         else:
-            raise Exception("Model not supported")
+            raise Exception("Provider not supported")
 
     @sync_to_async
-    def collect_context(self, input: str) -> list:
-        """Function Calling
-        Processes the input to find out which functions to call and
-        returns function results as messages
+    def stream_request(self, user_prompt: str, callback) -> str:
+        """Stream outputs from the final node
+        Filter by custom tag "result_node", to stream only values from the result_model
         """
-        llm_with_tools = self.llm.bind_tools([get_current_weather])
-        messages = [HumanMessage(input)]
-        ai_msg = llm_with_tools.invoke(messages)
-
-        for tool_call in ai_msg.tool_calls:
-            selected_tool = self.functions[tool_call["name"].lower()]
-            tool_output = selected_tool.invoke(tool_call["args"])
-            messages.append(FunctionMessage(
-                tool_output, name=tool_call["name"]))
-        return messages
-
-    @sync_to_async
-    def stream_request(self, messages: list, callback):
-        parser = StrOutputParser()
-        chain = self.prompt_template | self.llm | parser
         ai_message = ""
-        for chunk in chain.stream({"msgs": messages}):
-            async_to_sync(callback)(chunk)
-            ai_message = ai_message + chunk
+        for msg, metadata in self.agent.stream({"messages": [HumanMessage(user_prompt)]}, stream_mode="messages"):
+            if (
+                msg.content
+                and not isinstance(msg, HumanMessage)
+                and metadata["langgraph_node"] == Node.ASSISTANT
+            ):
+                async_to_sync(callback)(msg.content)
+                ai_message = ai_message + msg.content
         return ai_message
 
     @database_sync_to_async
@@ -115,25 +98,6 @@ class ChatService:
         if payload.temperature is not None:
             chat.configuration = {"temperature": payload.temperature.value}
         chat.save()
+        # TODO
+        # Run init_chat_model again, this sould not be done by the consumer
         return chat
-
-
-"""LangChain Tools
-
-Declare tools/functions here.
-"""
-
-
-@tool
-def get_current_weather(city) -> str:
-    """Calls a weather service and returns current weather data.
-
-    Args:
-        city (str): The location to get the weather for
-
-    Returns:
-        str: A description of the current weather in the specified city
-    """
-    client = WeatherAPIClient()
-    data = client.get_current_weather(city)
-    return str(data)
