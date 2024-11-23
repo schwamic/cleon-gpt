@@ -48,9 +48,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             data = event.data
             match data.message_type:
                 case ChatMessageType.HUMAN_MESSAGE:
-                    input_messages = await self.chat_service.collect_context(data.message)
-                    ai_message = await self.chat_service.stream_request(
-                        input_messages,
+                    await self.chat_service.stream_request(
+                        data.message,
                         lambda message: self.send_json(
                             ChatEvent(
                                 type=ChatEventType.MESSAGE,
@@ -70,8 +69,6 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                             )
                         ).model_dump()
                     )
-                    # Feature: Save messages to the database here, to be able to replay the conversation
-                    # await self.chat_service.save_events([message, ai_message])
                 case ChatMessageType.SETTINGS:
                     chat = await self.chat_service.update_model_configuration(data.message)
                     await self.chat_service.init_chat_model(chat)
