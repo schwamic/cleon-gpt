@@ -15,6 +15,7 @@ from langchain_openai import AzureChatOpenAI
 import conversations.services.ai_metaprompts as metaprompts
 from conversations.clients.weatherapi_client import WeatherAPIClient
 from conversations.models import AIModel, Chat
+from conversations.schemas import UpdateChatConfiguration
 
 
 class Consumer(str, Enum):
@@ -105,13 +106,13 @@ class ChatService:
         return ai_message
 
     @database_sync_to_async
-    def update_model_configuration(self, payload: dict) -> Chat:
+    def update_model_configuration(self, payload: UpdateChatConfiguration) -> Chat:
         chat = Chat.objects.get(id=UUID(self.chat_id))
-        if Configuration.MODEL in payload:
-            ai_model = AIModel.objects.get(slug_name=payload["model"])
+        if payload.model is not None:
+            ai_model = AIModel.objects.get(slug_name=payload.model)
             chat.model = ai_model
-        if Configuration.TEMPERATURE in payload:
-            chat.configuration = {"temperature": float(payload["temperature"])}
+        if payload.temperature is not None:
+            chat.configuration = {"temperature": payload.temperature.value}
         chat.save()
         return chat
 

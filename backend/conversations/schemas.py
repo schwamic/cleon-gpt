@@ -1,5 +1,6 @@
 from enum import Enum
 from uuid import UUID
+from typing import Union
 
 from ninja import Field, ModelSchema, Schema
 
@@ -13,6 +14,17 @@ Models are defined in models.py
 """
 
 
+class ChatEventType(str, Enum):
+    STATUS = "status"
+    MESSAGE = "message"
+
+
+class ChatMessageType(str, Enum):
+    HUMAN_MESSAGE = "human_message"
+    AI_MESSAGE = "ai_message"
+    SETTINGS = "update_settings"
+
+
 class Temperature(float, Enum):
     LOW = 0.2
     MEDIUM = 0.7
@@ -22,6 +34,11 @@ class Temperature(float, Enum):
 class CreateChatConfiguration(Schema):
     temperature: Temperature
     model: str
+
+
+class UpdateChatConfiguration(Schema):
+    temperature: Temperature | None = None
+    model: str | None = None
 
 
 class ConversationCreate(Schema):
@@ -50,3 +67,13 @@ class ChatPublic(ModelSchema):
     class Meta:
         model = Chat
         exclude = ["id", "users"]
+
+
+class ChatMessage(Schema):
+    message_type: ChatMessageType
+    message: Union[int, str, UpdateChatConfiguration]
+
+
+class ChatEvent(Schema):
+    type: ChatEventType
+    data: ChatMessage

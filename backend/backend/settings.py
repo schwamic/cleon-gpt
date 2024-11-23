@@ -74,8 +74,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "backend.wsgi.application"
-
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -135,10 +133,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Channels[Daphne]
 
 ASGI_APPLICATION = "backend.asgi.application"
-CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
+CHANNEL_LAYERS = {"default": {
+    "BACKEND": "channels.layers.InMemoryChannelLayer"}}
 
 
 # CORS Setting
 # Currently allowing all origins for development purposes
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ORIGIN_ALLOW_ALL = True

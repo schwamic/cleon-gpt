@@ -48,7 +48,7 @@ function useChat(chatId) {
             case ChatMessageType.SETTINGS:
                 getConversation()
                 break
-            case ChatMessageType.HUMAN_MESSAGE:
+            case ChatMessageType.AI_MESSAGE:
                 if (messageChunks.length > 0) {
                     processMessageChunks.current(messageChunks)
                 }
