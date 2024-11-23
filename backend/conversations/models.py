@@ -15,13 +15,9 @@ class AIModel(models.Model):
     class Provider(models.TextChoices):
         AZURE_OPEN_AI = "azure-openai"
 
-    class Name(models.TextChoices):
-        GPT_4O = "gpt-4o"
-        GPT_4O_MINI = "gpt-4o-mini"
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=50)
-    slug_name = models.CharField(choices=Name.choices, max_length=50, unique=True)
+    slug_name = models.CharField(max_length=50, unique=True)
     provider = models.CharField(max_length=50)
     slug_provider = models.CharField(choices=Provider.choices, max_length=50)
 
