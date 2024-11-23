@@ -8,7 +8,7 @@
 ![backend_container](../.docs/backend_container.png)
 3. Wait until VS Code has configured DevContainer – this can take a while
 ![configure_indicator](../.docs/configure_indicator.png)
-4. Add a `.env` file (see env.example)
+4. Add a `.env` file ([env.example](env.example))
 5. Open new terminal in VS Code
 6. Activate python environment in the terminal via `source .venv/bin/activate` and check via `which python`
 7. Run tests via `./manage.py test .`
