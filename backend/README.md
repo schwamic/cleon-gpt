@@ -13,7 +13,8 @@
 6. Activate python environment in the terminal via `source .venv/bin/activate` and check via `which python`
 7. Run tests via `./manage.py test .`
 8. Start development server via `./manage.py runserver` and open `http://127.0.0.1:8000/api/v1/docs`
-![backend_api](../.docs/backend_api.png)
+![backend_api](../.docs/backend_openapi.png)
+![backend_api](../.docs/backen_asyncapi.png)
 
 ### Troubleshooting
 
