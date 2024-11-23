@@ -92,8 +92,7 @@ class ChatService:
         for tool_call in ai_msg.tool_calls:
             selected_tool = self.functions[tool_call["name"].lower()]
             tool_output = selected_tool.invoke(tool_call["args"])
-            messages.append(FunctionMessage(
-                tool_output, name=tool_call["name"]))
+            messages.append(FunctionMessage(tool_output, name=tool_call["name"]))
         return messages
 
     @sync_to_async

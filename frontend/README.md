@@ -4,8 +4,8 @@
 
 1. Open VS Code
 2. Open backend project as DevContainer: `Reopen in Container -> Frontend Container`
-![reopen_in_container](./docs/reopen_in_container.png)
-![frontend_container](./docs/frontend_container.png)
+![reopen_in_container](../.docs/reopen_in_container.png)
+![frontend_container](../.docs/frontend_container.png)
 3. Wait until VS Code has configured DevContainer – this can take a while
 4. Add a `.env` file (keys see email)
 5. Open new terminal in VS Code

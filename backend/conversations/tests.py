@@ -30,7 +30,7 @@ class ConversationsTest(TestCase):
         # Arrange
         payload = {
             "user_id": TEST_USER_ID,
-            "configuration": {"temperature": 0.7, "model": AIModel.Name.GPT_4O},
+            "configuration": {"temperature": 0.7, "model": "gpt-4o"},
         }
         # Act
         client = TestClient(router)

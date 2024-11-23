@@ -6,7 +6,7 @@
 	"service": "frontend",
 	"shutdownAction": "none",
 	"workspaceFolder": "/workspace/frontend",
-	"postCreateCommand": "bash scripts/install-dependencies.sh",
+	"postCreateCommand": "bash scripts/post_create_app.sh",
 	"customizations": {
 		"vscode": {
 			"extensions": [
