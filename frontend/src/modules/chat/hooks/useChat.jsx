@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { debounce, throttle } from 'lodash';
 import PropTypes from 'prop-types'
 import { useConversationSocket, useListConfigurationOptions, useGetConversation } from '/src/modules/common/clients/useCleonApi';
 
@@ -20,11 +21,12 @@ export const ChatMessageType = {
 function useChat(chatId) {
     const { data: conversation, refetch: getConversation } = useGetConversation(chatId)
     const { data: settingOptions } = useListConfigurationOptions()
-    const [messageHistory, setMessageHistory] = useState([]);
+    const [messageChunks, setMessageChunks] = useState([]);
     const [chatHistory, setChatHistory] = useState([]);
     const { sendMessage, lastMessage, readyState } = useConversationSocket(chatId);
     const [isDirty, setIsDirty] = useState(false);
     const [currentSettings, setCurrentSettings] = useState({ model: null, temperature: null });
+    const messageQueue = useRef([])
 
     useEffect(() => {
         setCurrentSettings({
@@ -34,39 +36,70 @@ function useChat(chatId) {
     }, [conversation]);
 
     /**
-     * useEffect for handling incoming messages from the chat socket.
+     * useEffect for handling incoming messages of type STATUS from the chat socket.
      */
     useEffect(() => {
-        if (lastMessage !== null) {
-            const event = JSON.parse(lastMessage.data)
-            const messageType = event?.data?.message_type
-            var message = ""
-            switch (event?.type) {
-                case ChatEventType.STATUS:
-                    if (messageType === ChatMessageType.SETTINGS) {
-                        getConversation()
-                    }
-                    else if (messageType === ChatMessageType.HUMAN_MESSAGE) {
-                        message = messageHistory.join("")
-                        setChatHistory((prev) => prev.concat({ type: ChatMessageType.AI_MESSAGE, content: message }));
-                        setMessageHistory(() => []);
-                    }
-                    break
-                case ChatEventType.MESSAGE:
-                    if (messageType === ChatMessageType.AI_MESSAGE) {
-                        message = event?.data?.message
-                        setMessageHistory((prev) => prev.concat(message));
-                    }
-                    break
-            }
+        const event = lastMessage?.data ? JSON.parse(lastMessage.data) : null
+        if (!(event?.type === ChatEventType.STATUS)) {
+            return
+        }
+        const messageType = event.data.message_type
+        switch (messageType) {
+            case ChatMessageType.SETTINGS:
+                getConversation()
+                break
+            case ChatMessageType.HUMAN_MESSAGE:
+                if (messageChunks.length > 0) {
+                    processMessageChunks.current(messageChunks)
+                }
+                break
+        }
+    }, [lastMessage, messageChunks]);
+
+    /**
+     * useEffect for handling incoming messages of type MESSAGE from the chat socket.
+     */
+    useEffect(() => {
+        const event = lastMessage?.data ? JSON.parse(lastMessage.data) : null
+        if (!(event?.type === ChatEventType.MESSAGE)) {
+            return
+        }
+        const messageType = event.data.message_type
+        const message = event.data.message
+        switch (messageType) {
+            case ChatMessageType.AI_MESSAGE:
+                messageQueue.current.push(message);
+                processMessageQueue.current()
+                break
         }
     }, [lastMessage]);
+
+    /**
+     * Utility: Throttle incomming messages to keep rerenderings manageable.
+     */
+    const processMessageQueue = useRef(
+        throttle(() => {
+            const messageString = messageQueue.current.join("")
+            setMessageChunks((prev) => prev.concat(messageString))
+            messageQueue.current = []
+        }, 100)
+    );
+
+    /**
+     * Utility: Debounce to only process the final message
+     */
+    const processMessageChunks = useRef(
+        debounce((chunks) => {
+            setChatHistory((prev) => prev.concat({ type: ChatMessageType.AI_MESSAGE, content: chunks.join("") }));
+            setMessageChunks(() => []);
+        }, 200)
+    );
 
     /** 
      * Function for handling the sending of messages to the chat socket.
      */
     const handleClickSendMessage = useCallback((message) => {
-        var payload
+        let payload
         const isChatMessage = typeof message === "string"
         if (isChatMessage) {
             payload = {
@@ -87,7 +120,7 @@ function useChat(chatId) {
         }
         sendMessage(JSON.stringify(payload))
         updateStates(message)
-    }, [sendMessage, isDirty]);
+    }, []);
 
     const updateStates = (message) => {
         const isChatMessage = typeof message === "string"
@@ -99,7 +132,7 @@ function useChat(chatId) {
         }
     }
 
-    return [chatHistory, messageHistory, handleClickSendMessage, readyState, isDirty, settingOptions, currentSettings];
+    return [chatHistory, messageChunks, handleClickSendMessage, readyState, isDirty, settingOptions, currentSettings];
 }
 
 useChat.propTypes = {
