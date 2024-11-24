@@ -13,15 +13,15 @@ Seed the database with initial data, to be used in development and testing.
 
 def run():
     AIModel.objects.get_or_create(
-        provider="Azure OpenAI",
-        slug_provider=AIModel.Provider.AZURE_OPEN_AI,
+        provider="OpenAI",
+        slug_provider=AIModel.Provider.OPEN_AI,
         name="GPT-4o",
         slug_name="gpt-4o",
     )
 
     model, isCreated = AIModel.objects.get_or_create(
-        provider="Azure OpenAI",
-        slug_provider=AIModel.Provider.AZURE_OPEN_AI,
+        provider="OpenAI",
+        slug_provider=AIModel.Provider.OPEN_AI,
         name="GPT-4o mini",
         slug_name="gpt-4o-mini",
     )

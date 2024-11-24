@@ -39,6 +39,10 @@ class ToolsMarkdownWorkflow():
         builder.add_edge(Node.TOOLS, Node.ASSISTANT)
         return builder
 
+    def update_model(self, llm):
+        self.llm = llm
+        self.llm_with_tools = llm.bind_tools(self.tools)
+
     def __request_with_short_memory(self, state: MessagesState) -> dict:
         """
         Generate answer including the last four messages as context

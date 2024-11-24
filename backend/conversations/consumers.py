@@ -70,8 +70,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                         ).model_dump()
                     )
                 case ChatMessageType.SETTINGS:
-                    chat = await self.chat_service.update_model_configuration(data.message)
-                    await self.chat_service.init_chat_model(chat)
+                    await self.chat_service.update_model_configuration(data.message)
                     await self.send_json(
                         ChatEvent(
                             type=ChatEventType.STATUS,

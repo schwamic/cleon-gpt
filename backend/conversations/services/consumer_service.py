@@ -6,7 +6,7 @@ from uuid import UUID
 from asgiref.sync import async_to_sync, sync_to_async
 from channels.db import database_sync_to_async
 from langchain_core.messages import HumanMessage
-from langchain_openai import AzureChatOpenAI
+from langchain_openai import AzureChatOpenAI, ChatOpenAI
 
 from agents.workflows.tools_markdown_chatbot import Node, ToolsMarkdownWorkflow
 from conversations.models import AIModel, Chat
@@ -44,7 +44,7 @@ class ChatService:
 
     def __init__(self):
         self.chat_id = None
-        self.agent = None
+        self.workflow = None
         self.config = None
 
     @database_sync_to_async
@@ -54,26 +54,35 @@ class ChatService:
         self.config = {"configurable": {"thread_id": chat_id}}
         return chat
 
-    # TODO
-    # * Add last chat state if available
     @sync_to_async
     def init_chat_model(self, chat: Chat) -> None:
         """Factory Method
         Create the correct language model based on the chat object
         """
-        if chat.model.slug_provider == AIModel.Provider.AZURE_OPEN_AI:
-            if isinstance(chat.configuration, str):
-                chat.configuration = json.loads(chat.configuration)
-            llm = AzureChatOpenAI(
-                model=chat.model.slug_name,
-                temperature=chat.configuration["temperature"],
-                api_version=getenv("OPENAI_API_VERSION"),
-                api_key=getenv("AZURE_OPENAI_API_KEY"),
-                azure_endpoint=getenv("AZURE_OPENAI_ENDPOINT"),
-            )
-            self.agent = ToolsMarkdownWorkflow(llm).graph
+        if isinstance(chat.configuration, str):
+            chat.configuration = json.loads(chat.configuration)
+        match chat.model.slug_provider:
+            case AIModel.Provider.AZURE_OPEN_AI:
+                llm = AzureChatOpenAI(
+                    model=chat.model.slug_name,
+                    temperature=chat.configuration["temperature"],
+                    api_version=getenv("OPENAI_API_VERSION"),
+                    api_key=getenv("AZURE_OPENAI_API_KEY"),
+                    azure_endpoint=getenv("AZURE_OPENAI_ENDPOINT"),
+                )
+            case AIModel.Provider.OPEN_AI:
+                llm = ChatOpenAI(
+                    model=chat.model.slug_name,
+                    temperature=chat.configuration["temperature"],
+                    api_key=getenv("OPENAI_API_KEY"),
+                )
+            case _:
+                raise Exception("Provider not supported")
+
+        if (self.workflow is None):
+            self.workflow = ToolsMarkdownWorkflow(llm)
         else:
-            raise Exception("Provider not supported")
+            self.workflow.update_model(llm)
 
     @sync_to_async
     def stream_request(self, user_prompt: str, callback) -> str:
@@ -81,7 +90,7 @@ class ChatService:
         Filter by custom tag "result_node", to stream only values from the result_model
         """
         ai_message = ""
-        for msg, metadata in self.agent.stream({"messages": [HumanMessage(user_prompt)]}, stream_mode="messages", config=self.config):
+        for msg, metadata in self.workflow.graph.stream({"messages": [HumanMessage(user_prompt)]}, stream_mode="messages", config=self.config):
             if (
                 msg.content
                 and not isinstance(msg, HumanMessage)
@@ -100,6 +109,5 @@ class ChatService:
         if payload.temperature is not None:
             chat.configuration = {"temperature": payload.temperature.value}
         chat.save()
-        # TODO
-        # Run init_chat_model again, this sould not be done by the consumer
+        async_to_sync(self.init_chat_model)(chat)
         return chat

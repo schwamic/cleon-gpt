@@ -14,6 +14,7 @@ Create your Database Tables here. Schemas are defined in schemas.py
 class AIModel(models.Model):
     class Provider(models.TextChoices):
         AZURE_OPEN_AI = "azure-openai"
+        OPEN_AI = "openai"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=50)
@@ -25,5 +26,6 @@ class AIModel(models.Model):
 class Chat(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     users = models.ManyToManyField(User, null=True, blank=True)
-    model = models.ForeignKey(AIModel, on_delete=models.SET_NULL, null=True, blank=True)
+    model = models.ForeignKey(
+        AIModel, on_delete=models.SET_NULL, null=True, blank=True)
     configuration = models.JSONField()
