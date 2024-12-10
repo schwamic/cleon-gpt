@@ -20,6 +20,11 @@
 
 1. Not able to load `.env`: Close the terminal and open it again. Make shure you are in the right environment `which python` (`source .venv/bin/activate`).
 
+## LangGraph Studio
+
+1. Open LangGraph Studio app
+2. Select `/backend/agents`, which contains the langgraph project
+
 ## Database Migrations
 
 Here are the basics commands for handling the dev database:
