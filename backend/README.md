@@ -24,6 +24,7 @@
 
 1. Open LangGraph Studio app
 2. Select `/backend/agents`, which contains the langgraph project
+3. To make the studio work, you have to comment out the lines 57-58 in `agents/workflows/tools_markdown_chatbot.py`
 
 ## Database Migrations
 
