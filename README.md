@@ -13,4 +13,4 @@ I recommend that you watch the series [FOUNDATION](https://en.wikipedia.org/wiki
 
 ## Web&Wine
 
-Web&Wine is a meetup to discuss the latest innovations in web development or any other topic. Here are the slides from my talk: [Slides](./docs/webandwine.pdf).
+Web&Wine is a meetup to discuss the latest innovations in web development or any other topic. Here are the slides from my talk: [Slides](./.docs/webandwine.pdf).
