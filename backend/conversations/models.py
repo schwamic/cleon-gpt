@@ -25,7 +25,7 @@ class AIModel(models.Model):
 
 class Chat(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    users = models.ManyToManyField(User, null=True, blank=True)
+    users = models.ManyToManyField(User, blank=True)
     model = models.ForeignKey(
         AIModel, on_delete=models.SET_NULL, null=True, blank=True)
     configuration = models.JSONField()

@@ -2,6 +2,7 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/universal
 {
 	"name": "Frontend Container",
+	"forwardPorts": [8080],
 	"dockerComposeFile": ["../../docker-compose.yml"],
 	"service": "frontend",
 	"shutdownAction": "none",

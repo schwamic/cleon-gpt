@@ -1,6 +1,8 @@
 version: '3'
 services:
   backend:
+    env_file:
+      - ./backend/.env
     build:
       context: .
       dockerfile: ./.devcontainer/backend-container/Dockerfile
@@ -10,8 +12,12 @@ services:
     command: sleep infinity
     links:
       - frontend
+    ports:
+      - "8000:8000"
 
   frontend:
+    env_file:
+      - ./frontend/.env
     build:
       context: .
       dockerfile: ./.devcontainer/frontend-container/Dockerfile
@@ -19,3 +25,5 @@ services:
       # Mount the root folder that contains .git
       - .:/workspace:cached
     command: sleep infinity
+    ports:
+      - "8080:8080"
